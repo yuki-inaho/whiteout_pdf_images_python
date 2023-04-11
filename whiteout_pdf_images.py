@@ -4,25 +4,30 @@ from PIL import Image
 from PyPDF2 import PdfReader, PdfWriter
 
 
-def process_page(page):
-    output = io.BytesIO()
-    xObject = page["/Resources"]["/XObject"].get_object()
-
+def process_xObject(xObject):
     for obj in xObject:
         if xObject[obj]["/Subtype"] == "/Image":
             size = (xObject[obj]["/Width"], xObject[obj]["/Height"])
-            data = xObject[obj].get_data()
-            image = Image.frombytes("RGB", size, data, "raw", "BGR", 0, 1)
 
             # White out the image
             white_image = Image.new("RGB", size, "white")
             image = white_image
 
             # Save the white image as JPEG in memory
+            output = io.BytesIO()
             image.save(output, "JPEG")
 
             # Replace the original image data with the white image data
             xObject[obj]._data = output.getvalue()
+
+        elif xObject[obj]["/Subtype"] == "/Form":
+            form_xObject = xObject[obj]["/Resources"]["/XObject"].get_object()
+            process_xObject(form_xObject)
+
+
+def process_page(page):
+    xObject = page["/Resources"]["/XObject"].get_object()
+    process_xObject(xObject)
     return page
 
 
