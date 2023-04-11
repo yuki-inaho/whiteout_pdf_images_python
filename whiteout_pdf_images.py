@@ -41,9 +41,10 @@ def whiteout_images(input_pdf, output_pdf):
     # Process each page and add it to the output PDF
     for i in range(len(reader.pages)):
         page = reader.pages[i]
-        if "/XObject" not in page["/Resources"].keys():
-            continue
-        processed_page = process_page(page)
+        if "/XObject" in page["/Resources"].keys():
+            processed_page = process_page(page)
+        else:
+            processed_page = page
         writer.add_page(processed_page)
 
     # Write the output PDF
