@@ -21,8 +21,9 @@ def process_xObject(xObject):
             xObject[obj]._data = output.getvalue()
 
         elif xObject[obj]["/Subtype"] == "/Form":
-            form_xObject = xObject[obj]["/Resources"]["/XObject"].get_object()
-            process_xObject(form_xObject)
+            if "/XObject" in xObject[obj]["/Resources"].keys():
+                form_xObject = xObject[obj]["/Resources"]["/XObject"].get_object()
+                process_xObject(form_xObject)
 
 
 def process_page(page):
